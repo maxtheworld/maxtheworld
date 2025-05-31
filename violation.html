@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业车辆管理系统 - 违章记录</title>
+  <style>
+    :root {
+      --primary-color: #e8a2c2;
+      --secondary-color: #e47daa;
+      --light-color: #ecf0f1;
+      --dark-color: #efaeca;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+    .container {
+      display: flex;
+      min-height: calc(100vh - 60px);
+    }
+    .sidebar {
+      width: 220px;
+      background-color: var(--dark-color);
+      color: white;
+      padding: 20px 0;
+    }
+    .menu-item {
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .menu-item:hover, .menu-item.active {
+      background-color: var(--secondary-color);
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+    }
+    .form-container {
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    .form-col {
+      flex: 1;
+    }
+    .submit-btn {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+    .submit-btn:hover {
+      background-color: #d36b96;
+    }
+    select.form-control {
+      height: 40px;
+    }
+    textarea.form-control {
+      min-height: 100px;
+    }
+    .record-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .record-table th, .record-table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .record-table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+    .action-btn {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    .action-btn:hover {
+      background-color: #d36b96;
+    }
+    .status-pending { color: orange; }
+    .status-handled { color: green; }
+    .status-unpaid { color: red; }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('.menu-item').click(function() {
+        $('.menu-item').removeClass('active');
+        $(this).addClass('active');
+
+        // 根据点击的菜单项加载对应页面
+        const menuText = $(this).text().trim();
+        let pageName = '';
+        switch(menuText) {
+          case '首页': pageName = 'qw.html'; break;
+          case '用车申请': pageName = 'application.html'; break;
+          case '维修保养': pageName = 'maintenance.html'; break;
+          case '加油记录': pageName = 'refueling.html'; break;
+          case '违章记录': pageName = 'violation.html'; break;
+          case '年检管理': pageName = 'inspection.html'; break;
+        }
+        window.location.href = pageName;
+      });
+    });
+  </script>
+</head>
+<body>
+<div class="header">
+  <div class="logo">企业车辆管理系统</div>
+  <div class="user-info">
+    欢迎，edawrd
+  </div>
+</div>
+
+<div class="container">
+  <div class="sidebar">
+    <div class="menu-item">首页</div>
+    <div class="menu-item">用车申请</div>
+    <div class="menu-item">维修保养</div>
+    <div class="menu-item">加油记录</div>
+    <div class="menu-item active">违章记录</div>
+    <div class="menu-item">年检管理</div>
+  </div>
+
+  <div class="main-content">
+    <div class="form-container">
+      <h2>违章记录管理</h2>
+
+      <form id="violation-form">
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="vehicle">车辆</label>
+              <select id="vehicle" class="form-control">
+                <option value="">请选择车辆</option>
+                <option value="京A12345">京A12345 - 奔驰S400L</option>
+                <option value="京B67890">京B67890 - 宝马X5</option>
+                <option value="京C24680">京C24680 - 奥迪A6L</option>
+                <option value="京D13579">京D13579 - 大众迈腾</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="violation-date">违章日期</label>
+              <input type="date" id="violation-date" class="form-control" value="2025-05-29">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="violation-type">违章类型</label>
+          <select id="violation-type" class="form-control">
+            <option value="">请选择违章类型</option>
+            <option value="闯红灯">闯红灯</option>
+            <option value="超速行驶">超速行驶</option>
+            <option value="违规停车">违规停车</option>
+            <option value="不按导向行驶">不按导向行驶</option>
+            <option value="未系安全带">未系安全带</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="location">违章地点</label>
+          <input type="text" id="location" class="form-control" placeholder="请输入违章地点">
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label for="points">扣分</label>
+              <select id="points" class="form-control">
+                <option value="">请选择扣分数</option>
+                <option value="0">0分</option>
+                <option value="1">1分</option>
+                <option value="2">2分</option>
+                <option value="3">3分</option>
+                <option value="6">6分</option>
+                <option value="12">12分</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label for="fine">罚款金额(元)</label>
+              <input type="number" id="fine" class="form-control" placeholder="请输入罚款金额">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="driver">驾驶员</label>
+          <input type="text" id="driver" class="form-control" placeholder="请输入驾驶员姓名">
+        </div>
+
+        <div class="form-group">
+          <label for="description">违章描述</label>
+          <textarea id="description" class="form-control" placeholder="请输入违章详细描述"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="status">处理状态</label>
+          <select id="status" class="form-control">
+            <option value="pending">待处理</option>
+            <option value="handled">已处理</option>
+            <option value="unpaid">已处理未缴费</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="handling-notes">处理备注</label>
+          <textarea id="handling-notes" class="form-control" placeholder="请输入处理情况说明（如已缴费凭证号等）"></textarea>
+        </div>
+
+        <div class="form-group" style="text-align: right;">
+          <button type="reset" class="submit-btn" style="background-color: #ccc; margin-right: 10px;">重置</button>
+          <button type="submit" class="submit-btn">保存记录</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-container" style="margin-top: 20px;">
+      <h2>历史违章记录</h2>
+
+      <div class="form-row" style="margin-bottom: 20px;">
+        <div class="form-col" style="max-width: 200px;">
+          <div class="form-group">
+            <label for="search-vehicle">按车辆筛选</label>
+            <select id="search-vehicle" class="form-control">
+              <option value="">全部车辆</option>
+              <option value="京A12345">京A12345 - 奔驰S400L</option>
+              <option value="京B67890">京B67890 - 宝马X5</option>
+              <option value="京C24680">京C24680 - 奥迪A6L</option>
+              <option value="京D13579">京D13579 - 大众迈腾</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-col" style="max-width: 200px;">
+          <div class="form-group">
+            <label for="search-start-date">开始日期</label>
+            <input type="date" id="search-start-date" class="form-control">
+          </div>
+        </div>
+        <div class="form-col" style="max-width: 200px;">
+          <div class="form-group">
+            <label for="search-end-date">结束日期</label>
+            <input type="date" id="search-end-date" class="form-control">
+          </div>
+        </div>
+        <div class="form-col" style="max-width: 150px;">
+          <div class="form-group">
+            <label for="search-status">处理状态</label>
+            <select id="search-status" class="form-control">
+              <option value="">全部状态</option>
+              <option value="pending">待处理</option>
+              <option value="handled">已处理</option>
+              <option value="unpaid">已处理未缴费</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-col" style="max-width: 100px; display: flex; align-items: flex-end;">
+          <button class="submit-btn" style="width: 100%;">查询</button>
+        </div>
+      </div>
+
+      <table class="record-table">
+        <thead>
+        <tr>
+          <th>序号</th>
+          <th>车辆</th>
+          <th>违章日期</th>
+          <th>违章类型</th>
+          <th>违章地点</th>
+          <th>扣分</th>
+          <th>罚款</th>
+          <th>驾驶员</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>1</td>
+          <td>京A12345</td>
+          <td>2025-05-28</td>
+          <td>违规停车</td>
+          <td>北京市朝阳区建国路88号</td>
+          <td>0</td>
+          <td>200</td>
+          <td>张三</td>
+          <td><span class="status-pending">待处理
